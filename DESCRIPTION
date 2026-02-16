@@ -1,0 +1,10 @@
+Package: Duplicate
+Title: Duplicate
+Version: 1.0.0
+Authors@R: person("Vikram", "Srimurthy", "K.", "Vikram.C.Srimurthy@epfrglobal.com", role = c("aut", "cre"))
+Description: Duplicate.
+Depends: R (>= 3.4.4),stats,utils
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
