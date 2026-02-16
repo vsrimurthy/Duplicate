@@ -17,9 +17,9 @@ opener's subsequent bids
 \seealso{
 Other opener: \code{\link{opener.1Nresp}},
   \code{\link{opener.1N}}, \code{\link{opener.1Xresp}},
-  \code{\link{opener.1minorajor}},
-  \code{\link{opener.1minor}}, \code{\link{opener.2C}},
-  \code{\link{opener.2Nresp}}, \code{\link{opener.2N}},
-  \code{\link{opener.preempt}}, \code{\link{opener}}
+  \code{\link{opener.1major}}, \code{\link{opener.1minor}},
+  \code{\link{opener.2C}}, \code{\link{opener.2Nresp}},
+  \code{\link{opener.2N}}, \code{\link{opener.preempt}},
+  \code{\link{opener}}
 }
 \keyword{opener.21}

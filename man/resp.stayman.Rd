@@ -16,7 +16,7 @@ Responder's response to opener after Stayman
 }
 \seealso{
 Other resp: \code{\link{resp.1N}},
-  \code{\link{resp.1minorajor}}, \code{\link{resp.1minor}},
+  \code{\link{resp.1major}}, \code{\link{resp.1minor}},
   \code{\link{resp.stayman.wrapper}}, \code{\link{resp}}
 }
 \keyword{resp.stayman}

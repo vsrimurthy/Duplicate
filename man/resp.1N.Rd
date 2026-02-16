@@ -13,7 +13,7 @@ resp.1N(x)
 responder's response to 1N
 }
 \seealso{
-Other resp: \code{\link{resp.1minorajor}},
+Other resp: \code{\link{resp.1major}},
   \code{\link{resp.1minor}},
   \code{\link{resp.stayman.wrapper}},
   \code{\link{resp.stayman}}, \code{\link{resp}}

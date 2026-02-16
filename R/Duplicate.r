@@ -73,7 +73,7 @@ level <- function (x, y)
 
 auction <- function (x, y) 
 {
-    r <- open(x) == "P"
+    r <- opening.bid(x) == "P"
     if (r) {
         z <- x
         x <- y
@@ -143,15 +143,15 @@ cheapest <- function (x, y)
     z
 }
 
-#' example
+#' example.hands
 #' 
 #' hand examples
 #' @param fcn = function that determines when to stop
 #' @param fun = type of hand you want to focus on
-#' @keywords example
+#' @keywords example.hands
 #' @export
 
-example <- function (fcn, fun) 
+example.hands <- function (fcn, fun) 
 {
     z <- list()
     proceed <- T
@@ -576,61 +576,6 @@ len <- function (x)
     z
 }
 
-#' open
-#' 
-#' opening bid
-#' @param x = internal representation of a bridge hand
-#' @keywords open
-#' @export
-
-open <- function (x) 
-{
-    y <- bal(x)
-    z <- shape.detl(x)
-    w <- good.suit(x)
-    x <- hcp(x) + len(x)
-    if (x > 21) {
-        z <- "2C"
-    }
-    else if (x < 13 & any(z > 6 & w)) {
-        w <- max(z)
-        z <- paste0(w - 4, head(suits()[z == w], 1))
-    }
-    else if (x < 13 & any(z[-4] == 6 & w[-4])) {
-        z <- paste0("2", head(suits()[z == 6 & w], 1))
-    }
-    else if (x < 13) {
-        z <- "P"
-    }
-    else if (y & is.element(x, 15:17)) {
-        z <- "1N"
-    }
-    else if (y & is.element(x, 20:21)) {
-        z <- "2N"
-    }
-    else if (max(z) > 4) {
-        z <- suits()[z == max(z)]
-        z <- paste0("1", head(z, 1))
-    }
-    else if (all(z[3:4] == 3:2)) {
-        z <- "1D"
-    }
-    else if (all(z[3:4] == 2:3)) {
-        z <- "1C"
-    }
-    else if (all(z[3:4] == 3)) {
-        z <- "1C"
-    }
-    else if (all(z[3:4] == 4)) {
-        z <- "1D"
-    }
-    else {
-        z <- suits()[z == max(z)]
-        z <- paste0("1", tail(z, 1))
-    }
-    z
-}
-
 #' opener
 #' 
 #' responder's response to 1N
@@ -641,7 +586,7 @@ open <- function (x)
 
 opener <- function (x) 
 {
-    z <- list(bid = open(x))
+    z <- list(bid = opening.bid(x))
     if (z[["bid"]] == "2C") {
         z <- c(z, opener.2C(x))
     }
@@ -655,11 +600,53 @@ opener <- function (x)
         z <- c(z, opener.2N(x))
     }
     else if (grepl("^1(H|S)$", z[["bid"]])) {
-        z <- c(z, opener.1minorajor(x, z[["bid"]]))
+        z <- c(z, opener.1major(x, z[["bid"]]))
     }
     else if (grepl("^1(C|D)$", z[["bid"]])) {
         z <- c(z, opener.1minor(x, z[["bid"]]))
     }
+    z
+}
+
+#' opener.1major
+#' 
+#' opener's subsequent bids after 1M
+#' @param x = internal representation of a bridge hand
+#' @param y = opening bid
+#' @keywords opener.1major
+#' @export
+#' @family opener
+
+opener.1major <- function (x, y) 
+{
+    n <- shape.detl(x)
+    ord <- order(n, decreasing = T)
+    m <- hcp(x)
+    r <- len(x)
+    u <- shortness(n, y)
+    h <- n[as.numeric(y == "1H") + 1]
+    z <- list()
+    if (m + h - u > 18) {
+        z[[gsub("^1", "2", y)]] <- list(bid = gsub("^1", "4", 
+            y))
+        z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
+            y))
+    }
+    else if (m + h - u > 15) {
+        z[[gsub("^1", "2", y)]] <- list(bid = gsub("^1", "3", 
+            y))
+        z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
+            y))
+    }
+    else if (m + h - u == 15) {
+        z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
+            y))
+    }
+    if (y != "1S") 
+        z <- c(z, opener.1Xresp(x, y))
+    z <- c(z, opener.2Nresp(x, y))
+    z <- c(z, opener.1Nresp(x, y))
+    z <- c(z, opener.21(x, y))
     z
 }
 
@@ -761,48 +748,6 @@ opener.1minor <- function (x, y)
         }
     }
     z <- c(z, opener.1Xresp(x, y))
-    z <- c(z, opener.2Nresp(x, y))
-    z <- c(z, opener.1Nresp(x, y))
-    z <- c(z, opener.21(x, y))
-    z
-}
-
-#' opener.1minorajor
-#' 
-#' opener's subsequent bids after 1M
-#' @param x = internal representation of a bridge hand
-#' @param y = opening bid
-#' @keywords opener.1minorajor
-#' @export
-#' @family opener
-
-opener.1minorajor <- function (x, y) 
-{
-    n <- shape.detl(x)
-    ord <- order(n, decreasing = T)
-    m <- hcp(x)
-    r <- len(x)
-    u <- shortness(n, y)
-    h <- n[as.numeric(y == "1H") + 1]
-    z <- list()
-    if (m + h - u > 18) {
-        z[[gsub("^1", "2", y)]] <- list(bid = gsub("^1", "4", 
-            y))
-        z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
-            y))
-    }
-    else if (m + h - u > 15) {
-        z[[gsub("^1", "2", y)]] <- list(bid = gsub("^1", "3", 
-            y))
-        z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
-            y))
-    }
-    else if (m + h - u == 15) {
-        z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
-            y))
-    }
-    if (y != "1S") 
-        z <- c(z, opener.1Xresp(x, y))
     z <- c(z, opener.2Nresp(x, y))
     z <- c(z, opener.1Nresp(x, y))
     z <- c(z, opener.21(x, y))
@@ -1504,12 +1449,67 @@ opener.preempt <- function (x)
 {
     n <- shape.detl(x)
     ord <- order(n, decreasing = T)
-    v <- match(gsub("^\\d", "", open(x)), suits())
+    v <- match(gsub("^\\d", "", opening.bid(x)), suits())
     z <- list()
     for (j in setdiff(1:2, v)) {
         y <- cheapest(paste0(n[v] - 4, suits()[v]), j)
         z[[y]] <- list(bid = cheapest(y, ifelse(n[j] > 2, j, 
             v)))
+    }
+    z
+}
+
+#' opening.bid
+#' 
+#' opening bid
+#' @param x = internal representation of a bridge hand
+#' @keywords opening.bid
+#' @export
+
+opening.bid <- function (x) 
+{
+    y <- bal(x)
+    z <- shape.detl(x)
+    w <- good.suit(x)
+    x <- hcp(x) + len(x)
+    if (x > 21) {
+        z <- "2C"
+    }
+    else if (x < 13 & any(z > 6 & w)) {
+        w <- max(z)
+        z <- paste0(w - 4, head(suits()[z == w], 1))
+    }
+    else if (x < 13 & any(z[-4] == 6 & w[-4])) {
+        z <- paste0("2", head(suits()[z == 6 & w], 1))
+    }
+    else if (x < 13) {
+        z <- "P"
+    }
+    else if (y & is.element(x, 15:17)) {
+        z <- "1N"
+    }
+    else if (y & is.element(x, 20:21)) {
+        z <- "2N"
+    }
+    else if (max(z) > 4) {
+        z <- suits()[z == max(z)]
+        z <- paste0("1", head(z, 1))
+    }
+    else if (all(z[3:4] == 3:2)) {
+        z <- "1D"
+    }
+    else if (all(z[3:4] == 2:3)) {
+        z <- "1C"
+    }
+    else if (all(z[3:4] == 3)) {
+        z <- "1C"
+    }
+    else if (all(z[3:4] == 4)) {
+        z <- "1D"
+    }
+    else {
+        z <- suits()[z == max(z)]
+        z <- paste0("1", tail(z, 1))
     }
     z
 }
@@ -1529,13 +1529,65 @@ resp <- function (x, y)
         z <- resp.1N(x)
     }
     else if (grepl("^1(S|H)$", y)) {
-        z <- resp.1minorajor(x, y)
+        z <- resp.1major(x, y)
     }
     else if (grepl("^1(C|D)$", y)) {
         z <- resp.1minor(x, y)
     }
     else {
         z <- "?"
+    }
+    z
+}
+
+#' resp.1major
+#' 
+#' responder's response to 1M
+#' @param x = internal representation of a bridge hand
+#' @param y = string (opener's bid)
+#' @keywords resp.1major
+#' @export
+#' @family resp
+
+resp.1major <- function (x, y) 
+{
+    n <- shape.detl(x)
+    u <- shortness(n, y)
+    h <- n[as.numeric(y == "1H") + 1]
+    z <- hcp(x)
+    if (grepl("^1(S|H)$", y) & h > 2 & u < 3) {
+        z <- z + h - u
+    }
+    if (z < 6) {
+        z <- "P"
+    }
+    else if (h > 2) {
+        z <- gsub("^1", 2 + level(z, c(10, 12)), y)
+    }
+    else if (z > 11 & max(n) > 4) {
+        z <- head(suits()[n == max(n)], 1)
+        if (max(n) > 7 & any(z == suits(2))) {
+            z <- paste0(4, z)
+        }
+        else {
+            z <- paste0(as.numeric(gsub("[^0-9]", "", y)) + senior(z, 
+                y), z)
+        }
+    }
+    else if (y == "1H" & n[1] > 3) {
+        z <- "1S"
+    }
+    else if (is.element(z, 12:15)) {
+        z <- "2N"
+    }
+    else if (is.element(z, 16:18)) {
+        z <- "3N"
+    }
+    else if (z > 18) {
+        z <- "6N"
+    }
+    else {
+        z <- "1N"
     }
     z
 }
@@ -1598,58 +1650,6 @@ resp.1minor <- function (x, y)
     }
     else {
         z <- "6N"
-    }
-    z
-}
-
-#' resp.1minorajor
-#' 
-#' responder's response to 1M
-#' @param x = internal representation of a bridge hand
-#' @param y = string (opener's bid)
-#' @keywords resp.1minorajor
-#' @export
-#' @family resp
-
-resp.1minorajor <- function (x, y) 
-{
-    n <- shape.detl(x)
-    u <- shortness(n, y)
-    h <- n[as.numeric(y == "1H") + 1]
-    z <- hcp(x)
-    if (grepl("^1(S|H)$", y) & h > 2 & u < 3) {
-        z <- z + h - u
-    }
-    if (z < 6) {
-        z <- "P"
-    }
-    else if (h > 2) {
-        z <- gsub("^1", 2 + level(z, c(10, 12)), y)
-    }
-    else if (z > 11 & max(n) > 4) {
-        z <- head(suits()[n == max(n)], 1)
-        if (max(n) > 7 & any(z == suits(2))) {
-            z <- paste0(4, z)
-        }
-        else {
-            z <- paste0(as.numeric(gsub("[^0-9]", "", y)) + senior(z, 
-                y), z)
-        }
-    }
-    else if (y == "1H" & n[1] > 3) {
-        z <- "1S"
-    }
-    else if (is.element(z, 12:15)) {
-        z <- "2N"
-    }
-    else if (is.element(z, 16:18)) {
-        z <- "3N"
-    }
-    else if (z > 18) {
-        z <- "6N"
-    }
-    else {
-        z <- "1N"
     }
     z
 }
@@ -1837,7 +1837,7 @@ responder.1major <- function (x, y)
     m <- hcp(x)
     u <- n[as.numeric(y == "1H") + 1]
     u <- m + u - shortness(n, y)
-    z <- list(bid = resp.1minorajor(x, y))
+    z <- list(bid = resp.1major(x, y))
     if (u > 7 & z[["bid"]] == gsub("^1", "2", y)) {
         z[[gsub("^1", "3", y)]] <- list(bid = gsub("^1", "4", 
             y))
