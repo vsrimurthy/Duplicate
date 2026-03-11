@@ -2902,7 +2902,8 @@ stopper <- function (x)
 
 suit.symbols <- function (x) 
 {
-    z <- c("<U+2660>", "<U+2665>", "<U+2666>", "<U+2663>")
+    z <- c(intToUtf8(9824), intToUtf8(9829), intToUtf8(9830), 
+        intToUtf8(9827))
     z <- rep(z, 2)
     y <- c(suits(), 3:0)
     z <- z[match(x, y)]
